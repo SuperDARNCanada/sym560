@@ -1,0 +1,15 @@
+This directory contains the Linux software (driver and applications) to operate
+the Symmetricom GPS-PCI for the purposes of timestamping the SuperDARN pulses.
+ 
+See documentation/UserGuide.pdf for more details
+To Install:
+
+	1. As user run: make (or make all)
+	
+	2. As root run: make install
+
+	3. Yast -> System -> System Services: enable sym560
+
+To Uninstall:
+
+	As root run: make clean
