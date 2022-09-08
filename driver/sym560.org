@@ -1,0 +1,77 @@
+#!/bin/sh
+#
+# The following script is a slightly modified version of a skeleton init script provided
+# (/etc/init.d/skeleton).  The script is used to load and unload the sym560 driver/module.
+# The arguments allowed are: start, stop and restart.
+
+### BEGIN INIT INFO
+# Provides:          sym560 
+# Required-Start:    $syslog $remote_fs
+# Should-Start: $time ypbind smtp
+# Required-Stop:     $syslog $remote_fs
+# Should-Stop: $time ypbind smtp
+# Default-Start:     3 5
+# Default-Stop:      0 1 2 6
+# Short-Description: sym560 module
+# Description:       Load the sym560 module
+### END INIT INFO
+
+. /etc/rc.status
+
+# Reset status of this service
+rc_reset
+
+
+MODULE="PATHTOMODULE"
+DEVICE="symgps"
+MODE="664"
+
+case "$1" in
+    start)
+	echo "Starting sym560 "
+        # invoke insmod with all arguments we got
+        # and use a pathname, as newer modutils don't look in . by default
+        /sbin/insmod ${MODULE} || exit 1
+        # remove stale nodes
+        rm -f /dev/${DEVICE}[0-3]
+
+        # Get the assigned major number from /proc/devices (it was assigned by
+        # the insmod command).
+        MAJOR=`cat /proc/devices | awk '$2 ~ /'$DEVICE'/ {print $1}'`
+        mknod /dev/${DEVICE}0 c ${MAJOR} 0
+
+        # give appropriate group/permissions, and change the group.
+        # Not all distributions have staff, some have "wheel" instead.
+        GROUP="users"
+        chgrp $GROUP /dev/${DEVICE}[0-3]
+        chmod $MODE /dev/${DEVICE}[0-3]
+
+	rc_status -v
+	;;
+    stop)
+	echo "Stopping the sym560 "
+
+        # invoke insmod with all arguments we got
+        # and use a pathname, as newer modutils don't look in . by default
+        /sbin/rmmod ${MODULE} || exit 1
+
+        # remove stale nodes
+        rm -f /dev/${DEVICE}[0-3]
+
+	rc_status -v
+	;;
+    restart)
+	## Stop the service and regardless of whether it was
+	## running or not, start it again.
+	$0 stop
+	$0 start
+
+	# Remember status and be quiet
+	rc_status
+	;;
+    *)
+	echo "Usage: $0 {start|stop|restart}"
+	exit 1
+	;;
+esac
+rc_exit

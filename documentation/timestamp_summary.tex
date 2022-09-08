@@ -1,0 +1,26 @@
+\documentclass[11pt]{article}
+\usepackage[left=3cm,top=3cm,right=3cm,nohead,nofoot]{geometry}
+
+%opening
+\title{SuperDARN Pulse Timestamping}
+
+
+\begin{document}
+
+\maketitle
+
+A method for timestamping the SuperDARN transmission pulses has been achieved using a Symmetricom GPS-PCI-2U card.  The desire to timestamp the pulse sequences involves the ePOP payload, or more specifically the Radio Receiver Instrument, which will be able to observe HF transmissions from the SuperDARN ground systems. In order to facilitate scientific analysis, these transmissions must be accurately logged.  There were two main requirements for timestamping the SuperDARN pulse.  
+\begin{enumerate}
+ \item The timestamps had to be accurate to within $\pm$8 $\mu$s (the timestamping accuracy requirement of the ePOP Radio Receiver Instrument).
+ \item The device needed to be able to timestamp at a high enough frequency.  The current pulse sequences occur roughly every 90 ms and, at a minimum, each sequence would need to be timestamped.  The SuperDARN pulse sequence was analyzed on a digital oscilloscope and the pulse sequence was found to be accurate to within $\approx \pm$1.5 $\mu$s.  So technically, only the first pulse in the sequence would need to be timestamped; however, a device that could timestamp every pulse in the sequence would be preferred because:
+  \begin{enumerate}
+   \item it would accommodate the ability to change the sequence length
+   \item it would eliminate the possibility of logging the wrong pulse in the sequence
+   \item anomalous or missing timestamps would be easier to identify
+  \end{enumerate}
+\end{enumerate}
+
+The Symmetricom GPS-PCI-2U card was chosen because it exceeded both requirements.  It has a 3 $\mu$s accuracy with resolution down to the hundreds of ns, and according to the user guide can timestamp pulses as fast as most computers can read and process them.  Testing showed that the timestamps could be logged as close as 2 $\mu$s apart, meaning the entire SuperDARN pulse sequence could be timestamped (the closest two SuperDARN pulses are 1500 $\mu$s apart).
+
+The GPS PCI card came with a sample application for Windows and a Software Development Kit(SDK) could be purchased for creating custom applications.  However, the SuperDARN computers run Linux and there was no driver or applications provided for Linux. Therefore, a Linux driver and applications were developed at the U of S.  Presently, the driver and application code is being enhanced and a user guide for operating the device and modifying applications is being created.
+\end{document}

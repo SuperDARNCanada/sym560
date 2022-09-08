@@ -1,0 +1,12 @@
+[Unit]
+Description=Load the sym560 module
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/systemd/scripts/sym560 start
+ExecStop=/usr/lib/systemd/scripts/sym560 stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+
