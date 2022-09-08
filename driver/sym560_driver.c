@@ -466,7 +466,7 @@ static long sym560_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	u32 data_32;
 	struct sym560_descriptor *dev; /* dev will contain device info */
 	/*pg 12 ch 3 of rubini for explanation of following command */
-	dev = container_of(filp->f_owner->d_inode->i_cdev, struct sym560_descriptor, mycdev);
+	dev = container_of(filp->f_path.dentry->d_inode->i_cdev, struct sym560_descriptor, mycdev);
 
 	switch(cmd)
        	{
