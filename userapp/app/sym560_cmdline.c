@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 			ptm->tm_min);
 	
 	/* open the device for read and write */
-	fd = open("/dev/symgps0", O_RDWR);
+	fd = open("/dev/symgps", O_RDWR);
 	if(fd < 0) {
 		printf("\nDevice not found.  Make sure driver has been loaded ( systemctl start sym560.service )\n");
 		exit(1);
