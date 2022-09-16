@@ -53,4 +53,4 @@ uninstall:
 clean:
 	@echo "Cleaning"
 	cd $(APPDIR); rm -f *.o *~ sym560_cmdline event_cap
-	cd $(DRVDIR); rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions sym560
+	cd $(DRVDIR); rm -rf *.o *~ core .depend .*.cmd *.ko *.mod *.mod.c .tmp_versions sym560
