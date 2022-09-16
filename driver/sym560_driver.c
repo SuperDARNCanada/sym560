@@ -574,7 +574,6 @@ static unsigned char sym560_get_info(struct pci_dev *dev)
 }
 /*****************************************************************************/
 
-
 /*****************************************************************************/
 /* NAME: 	sym560_probe
  *
@@ -594,8 +593,7 @@ static int sym560_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	int ret;	/* used for error handling */
 	/*struct that holds the major and minor device numbers*/
 	dev_t devt = MKDEV(SYM560_MAJOR, SYM560_MINOR);
-	
-	/* struct used in memory management declared above */
+	static struct class * sym560_class; /* class_create returns this */
 	struct sym560_descriptor *sym560_p = &sym560;
 	
 	printk(KERN_INFO "\n**************************************************\n");
@@ -645,7 +643,9 @@ static int sym560_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	printk(KERN_DEBUG "IRQ NUM = %d\n", sym560_p->irq);
 	
 	/* assign major/minor device numbers */
-	/* This will cause it to show up in /proc/devices */
+	/* This doesn't cause it to show up in /proc/devices,
+	 * for that you need to use device_create() and class_create()
+	 * Or you need to mkdevice using cmd line binaries */
 	ret = alloc_chrdev_region(&devt, SYM560_MINOR, 1, "symgps"); 
 	
 	if (ret != 0)
@@ -655,6 +655,9 @@ static int sym560_probe(struct pci_dev *dev, const struct pci_device_id *id)
 		return ret;
 	}
 	
+	sym560_class = class_create(THIS_MODULE, "gps");
+	device_create(sym560_class, NULL, devt, NULL, "symgps");
+
 	SYM560_MAJOR = MAJOR(devt);
 
 	printk(KERN_DEBUG "Sym560 registered as:\n");
