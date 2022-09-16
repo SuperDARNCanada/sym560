@@ -25,7 +25,7 @@ $(APPDIR)sym560_cmdline.o: $(APPDIR)sym560_cmdline.c $(APPDIR)sym560_functions.h
 	cd $(APPDIR); gcc -g -c sym560_cmdline.c
 
 sym560driver:
-	cd $(DRVDIR); $(MAKE) -C $(KERNELDIR) M="$(PWD)/driver"
+	cd $(DRVDIR); $(MAKE) -C $(KERNELDIR) M="$(PWD)/driver" modules
 	sed -e 's%PATHTOMODULE%$(PWD)/driver/sym560_driver.ko%g' $(PWD)/driver/sym560.org > $(PWD)/driver/sym560
 	chmod 0755 $(PWD)/driver/sym560
 	
