@@ -16,10 +16,14 @@
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Introduction} \label{intro}
-A method for timestamping the SuperDARN transmission pulses has been achieved using a Symmetricom GPS-PCI-2U card.  The desire to timestamp the pulse sequences comes with the launch of the ePOP satellite payload, or more specifically the Radio Receiver Instrument, which will be able to observe HF transmissions from the SuperDARN ground systems. In order to facilitate scientific analysis, these transmissions must be accurately logged.
+\section{Introduction} \label{sec:intro}
+A method for timestamping the SuperDARN transmission pulses has been achieved using a Symmetricom GPS-PCI-2U card.
+ The desire to timestamp the pulse sequences comes with the launch of the ePOP satellite payload, or more specifically the Radio Receiver Instrument, which will be able to observe HF transmissions from the SuperDARN ground systems.
+ In order to facilitate scientific analysis, these transmissions must be accurately logged.
 
-The GPS PCI card came with a sample application for Windows and a Software Development Kit(SDK) could be purchased for creating custom applications.  However, there were no drivers or applications provided for Linux, which is the operating system used by the the SuperDARN cd computers.  Therefore, a driver and applications for Linux SuSE 10.3 were developed at the U of S.  This document gives a brief description of the GPS-PCI-2U card, demonstrates how to install and use the driver and applications, and provides information on customizing the software.
+The GPS PCI card came with a sample application for Windows and a Software Development Kit(SDK) could be purchased for creating custom applications.
+ However, there were no drivers or applications provided for Linux, which is the operating system used by the the SuperDARN cd computers.
+  Therefore, a driver and applications for Linux SuSE 10.3 were developed at the U of S.  This document gives a brief description of the GPS-PCI-2U card, demonstrates how to install and use the driver and applications, and provides information on customizing the software.
 
 %Availability of software ?? By request I guess?
 
@@ -29,11 +33,14 @@ The GPS PCI card came with a sample application for Windows and a Software Devel
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The Symmetricom GPS-PCI Card} \label{gpscard}
+\section{The Symmetricom GPS-PCI Card} \label{sec:gpscard}
 There were two main requirements for timestamping the SuperDARN pulse that were considered when purchasing a GPS unit:
 \begin{enumerate}
  \item The timestamps had to be accurate to within $\pm$8 $\mu$s (the timestamping accuracy requirement of the ePOP Radio Receiver Instrument).
- \item The device needed to be able to timestamp at a high enough frequency.  The current pulse sequences occur roughly every 90 ms and, at a minimum, each sequence would need to be timestamped.  The SuperDARN pulse sequence was analyzed on a digital oscilloscope and the pulse sequence was found to be accurate to within $\approx \pm$1.5 $\mu$s.  So technically, only the first pulse in the sequence would need to be timestamped; however, a device that could timestamp every pulse in the sequence would be preferred because:
+ \item The device needed to be able to timestamp at a high enough frequency.
+  The current pulse sequences occur roughly every 90 ms and, at a minimum, each sequence would need to be timestamped.
+   The SuperDARN pulse sequence was analyzed on a digital oscilloscope and the pulse sequence was found to be accurate to within $\approx \pm$1.5 $\mu$s.  So technically, only the first pulse in the sequence would need to be timestamped;
+  however, a device that could timestamp every pulse in the sequence would be preferred because:
   \begin{enumerate}
    \item it would accommodate the ability to change the sequence length
    \item it would eliminate the possibility of logging the wrong pulse in the sequence
@@ -41,7 +48,9 @@ There were two main requirements for timestamping the SuperDARN pulse that were 
   \end{enumerate}
 \end{enumerate}
 
-The Symmetricom GPS-PCI-2U card (also called the Symmetricom 560-5908) was chosen because it exceeded both requirements.  It has a 3 $\mu$s accuracy with resolution down to the hundreds of ns and, according to the manufacturers' user guide, can timestamp pulses as fast as most computers can read and process them.  Testing showed that the timestamps could be logged as close as 2 $\mu$s apart, meaning the entire SuperDARN pulse sequence could be timestamped (the closest two SuperDARN pulses are 1500 $\mu$s apart).
+The Symmetricom GPS-PCI-2U card (also called the Symmetricom 560--5908) was chosen because it exceeded both requirements.
+ It has a 3 $\mu$s accuracy with resolution down to the hundreds of ns and, according to the manufacturers' user guide, can timestamp pulses as fast as most computers can read and process them.
+  Testing showed that the timestamps could be logged as close as 2 $\mu$s apart, meaning the entire SuperDARN pulse sequence could be timestamped (the closest two SuperDARN pulses are 1500 $\mu$s apart).
 
 In addition to meeting the two requirements, the GPS-PCI-2U provides the following additional capabilities:
 \begin{itemize}
@@ -58,10 +67,11 @@ In addition to meeting the two requirements, the GPS-PCI-2U provides the followi
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Installation} \label{install}
+\section{Installation} \label{sec:install}
 
-\subsection{Test System} \label{requirements}
-The same computer was used to both create and test the software.  The test system had the following specs:
+\subsection{Test System} \label{subsec:requirements}
+The same computer was used to both create and test the software.
+ The test system had the following specs:
 %This section needs work
 \begin{itemize}
  \item Linux SuSE 10.3 (also successfully compiled on SuSE 10.2)
@@ -73,19 +83,25 @@ The same computer was used to both create and test the software.  The test syste
 \end{itemize}
 
 
-\subsection{The Installed Software} \label{whatinstall}
-The software is bundled as sym560.tar.gz, which contains a main directory called sym560 and subdirectories such as documentation and driver.  The software installed is listed below and a more detailed look at each item is found in \textbf{Sections \ref{driver} - \ref{seqscript}}.
+\subsection{The Installed Software} \label{subsec:whatinstall}
+The software is bundled as sym560.tar.gz, which contains a main directory called sym560 and subdirectories such as documentation and driver.
+ The software installed is listed below and a more detailed look at each item is found in \textbf{Sections~\ref{sec:driver} -~\ref{seqscript}}.
 \begin{enumerate}
  \item The driver module \textbf{sym560\_driver.ko} is compiled into the \textbf{sym560/driver} directory (along with some intermediate files).
- \item The \textbf{sym560} startup script is created and copied to the \textbf{/etc/init.d} directory.  This script is used to load and unload the sym560\_driver.ko module.
- \item The user application \textbf{sym560\_cmdline} is compiled into the \textbf{sym560/userapp/app} directory and copied to the \textbf{/usr/bin} directory.  This application has multiple uses from fetching the GPS-PCI card time to timestamping external events both manually and automatically.
- \item The application \textbf{event\_cap} is compiled and copied to \textbf{/usr/bin}.  This program is called by the main sym560\_cmdline program and should not be manually executed.
- \item The \textbf{stopstamp.bash} script is copied to \textbf{/usr/bin}.  This script can be called by cron to stop automated timestamping.
- \item The \textbf{findpulse.pl} perl script is copied to \textbf{/usr/bin}.  This script will take plain text timestamp files created by the sym560\_cmdline program and try to group the timestamps into pulse sequences.
+ \item The \textbf{sym560} startup script is created and copied to the \textbf{/etc/init.d} directory.
+  This script is used to load and unload the sym560\_driver.ko module.
+ \item The user application \textbf{sym560\_cmdline} is compiled into the \textbf{sym560/userapp/app} directory and copied to the \textbf{/usr/bin} directory.
+  This application has multiple uses from fetching the GPS-PCI card time to timestamping external events both manually and automatically.
+ \item The application \textbf{event\_cap} is compiled and copied to \textbf{/usr/bin}.
+  This program is called by the main sym560\_cmdline program and should not be manually executed.
+ \item The \textbf{stopstamp.bash} script is copied to \textbf{/usr/bin}.
+  This script can be called by cron to stop automated timestamping.
+ \item The \textbf{findpulse.pl} perl script is copied to \textbf{/usr/bin}.
+  This script will take plain text timestamp files created by the sym560\_cmdline program and try to group the timestamps into pulse sequences.
 \end{enumerate}
 .
 
-\subsection{How to Install} \label{howinstall}
+\subsection{How to Install} \label{subsec:howinstall}
 The short version:
 \begin{enumerate}
  \item Extract the software: tar -xzvf sym560.tar.gz
@@ -98,26 +114,33 @@ The short version:
 The more detailed version:
 \begin{enumerate}
  \item Extract the software contents with the command tar -xzvf sym560.tar.gz.
- \item As a \textbf{regular user} enter the main directory (the one containing the Makefile, and the documentation, driver, and userapp directories) and enter: \textbf{make}.  This will:
+ \item As a \textbf{regular user} enter the main directory (the one containing the Makefile, and the documentation, driver, and userapp directories) and enter: \textbf{make}.
+  This will:
  \begin{enumerate}
   \item Compile the sym560\_driver.ko module in the driver directory (other intermediate files will also appear).
   \item Compile the sym560\_cmdline user application in the userapp/app/ directory (again, some intermediate files will also be created).
-  \item Create the sym560 script with the appropriate path to the driver module.  This script should be identical to the sym560.org file EXCEPT that it should be executable, and the MODULE variable will have been changed from 'PATHTOMODULE' to the actual path to the .ko module.
+  \item Create the sym560 script with the appropriate path to the driver module.
+   This script should be identical to the sym560.org file EXCEPT that it should be executable, and the MODULE variable will have been changed from 'PATHTOMODULE' to the actual path to the .ko module.
  \end{enumerate}
 If successful the output should end with the line:
 \begin{small}\begin{verbatim}
  chmod 0755 /home/krug/SuperDARN/EPOP/SymmetricomPCI/sym560/driver/sym560
 \end{verbatim}\end{small}
- \item Next, switch to \textbf{root} and type: \textbf{make install}.  This will:
+ \item Next, switch to \textbf{root} and type: \textbf{make install}.
+  This will:
   \begin{enumerate}
    \item Copy the applications and scripts to /usr/bin/ (this can be changed by altering the BINDIR variable in the Makefile).\footnote{Certain applications look to /usr/bin and will also need to be updated.  For instance, sym560\_cmdline executes the event\_cap process and the findpulses.pl script, which it expects to find in /usr/bin.}
-   \item Copy the sym560 script to the directory /etc/init.d/.  This is where scripts that are to be executed on startup should be placed.
+   \item Copy the sym560 script to the directory /etc/init.d/.
+    This is where scripts that are to be executed on startup should be placed.
   \end{enumerate}
- \item The final step is to ensure that the sym560\_driver.ko module is automatically loaded on startup.  Go to \textbf{YaST$\rightarrow$System$\rightarrow$System Services (Runlevel)}.  Select \textbf{sym560} and click \textbf{enable}.
+ \item The final step is to ensure that the sym560\_driver.ko module is automatically loaded on startup.
+  Go to \textbf{YaST$\rightarrow$System$\rightarrow$System Services (Runlevel)}.
+   Select \textbf{sym560} and click \textbf{enable}.
 \end{enumerate}
 
-\subsection{How to Uninstall} \label{uninstall}
-To uninstall, enter the main directory and (as \textbf{root}) type: \textbf{make clean}.  The output should be similar to that shown below.
+\subsection{How to Uninstall} \label{subsec:uninstall}
+To uninstall, enter the main directory and (as \textbf{root}) type: \textbf{make clean}.
+ The output should be similar to that shown below.
 \begin{footnotesize}
 \begin{verbatim}
 cd ./userapp/app/; rm -f *.o *~ sym560_cmdline event_cap
@@ -131,16 +154,17 @@ rm -f /usr/bin/stopstamp.bash /usr/bin/sym560_cmdline /usr/bin/event_cap
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{The Driver} \label{driver}
+\section{The Driver} \label{sec:driver}
 
-In order to communicate with the GPS-PCI device in Linux a driver needed to written.  The driver was made specifically for the Symmetricom 560-5908 and as such provides more specific functionality than most linux drivers.  The driver is used to open, close, read, and write to the device but also has several built in IO commands.\footnote{Two important IO commands, which may be needed for creating custom applications (discussed in Section \ref{customizing}), are:
+In order to communicate with the GPS-PCI device in Linux a driver needed to written.
+ The driver was made specifically for the Symmetricom 560--5908 and as such provides more specific functionality than most linux drivers.  The driver is used to open, close, read, and write to the device but also has several built in IO commands.\footnote{Two important IO commands, which may be needed for creating custom applications (discussed in Section~\ref{customizing}), are:
 \begin{enumerate}
  \item event capture: timestamps external events
  \item INTCSR:  enables interrupts on the PCI card
 \end{enumerate}
 }
 
-The driver was written to produce output to the \textbf{/var/log/messages} log file.  This file can be viewed (as root) in ``realtime'' by opening it with \textbf{less} and then typing 'Shift-f'.  The realtime update can be halted with the 'Ctrl-c' key combo, followed by 'q' to quit less.  After following the installation procedure of \textbf{Section \ref{howinstall}}, the driver module can be manually loaded and unloaded by typing (as root):
+The driver was written to produce output to the \textbf{/var/log/messages} log file.  This file can be viewed (as root) in ``realtime'' by opening it with \textbf{less} and then typing 'Shift-f'.  The realtime update can be halted with the 'Ctrl-c' key combo, followed by 'q' to quit less.  After following the installation procedure of \textbf{Section~\ref{subsec:howinstall}}, the driver module can be manually loaded and unloaded by typing (as root):
 \begin{verbatim}
  /etc/init.d/sym560 start (or 'stop' to unload)
 \end{verbatim}
@@ -175,7 +199,7 @@ kernel: sym560 driver was successfully registered
    \end{verbatim}
 \end{small}
 
-During the development of the software, the driver was made to print additional information to the log file.  This included a message everytime the device was read or written to.  These log messages were suppressed in order to ensure the timestamping interrupts would occur as quickly as possible; however they can be turned back on (see \textbf{Section \ref{customizing}}).
+During the development of the software, the driver was made to print additional information to the log file.  This included a message everytime the device was read or written to.  These log messages were suppressed in order to ensure the timestamping interrupts would occur as quickly as possible; however they can be turned back on (see \textbf{Section~\ref{customizing}}).
 
 \noindent \textbf{WARNING:} The driver has not been written to address ``race conditions'' (ex: two process trying to write to the same register at the same time).  This could happen if two users were logged in and both running the sym560\_cmdline application, or if a user tried running the sym560\_cmdline application while automatic timestamping was taking place. 
 %ALTERNATIVE mention the SDK for Windows and the sample application (good way to test GPS card to see if it's working... can't always trust your own driver).
@@ -350,7 +374,7 @@ Note that the above timestamps are not SuperDARN pulse sequences and are thus au
 
 The following is an example of how to set up the automatic timestamping of the SuperDARN pulse sequence for a specific daily time.  The example time period used is from 3:00 to 3:30.
 \begin{enumerate}
- \item Follow the installation procedure from \textbf{Section \ref{howinstall}} if you haven't already done so.
+ \item Follow the installation procedure from \textbf{Section~\ref{subsec:howinstall}} if you haven't already done so.
  \item Create a cron file with the following entries:
 \begin{verbatim}
  00 3 * * * cd /path/to/timestampdir/ ; sym560_cmdline auto
@@ -461,7 +485,7 @@ Getting started:
 
  \item The driver has not been written (for the most part) to protect against race conditions.  A race condition occurs when two processes are trying to access the device at the same time, for example if two processes try to write to the same register at the same time.  To avoid race conditions never run more than one instance of the sym560\_cmdline application (or any custom built applications) at the same time.  There is a chapter in \textit{Linux Device Drivers} that deals with handling race conditions.
 
- \item If the findpulse.pl script is used on a timestamp raw text file that has a captured pulse sequences similar to the one being detected but not identical then the resulting pulses\_YYYY\_DDD.txt output file could indicate many missing pulses and flag others as N (not part of a sequence).  \textbf{Section \ref{seqscript}} describes how to change the sequence that the findpulse.pl script will look for.
+ \item If the findpulse.pl script is used on a timestamp raw text file that has a captured pulse sequences similar to the one being detected but not identical then the resulting pulses\_YYYY\_DDD.txt output file could indicate many missing pulses and flag others as N (not part of a sequence).  \textbf{Section~\ref{seqscript}} describes how to change the sequence that the findpulse.pl script will look for.
 
  \item A lot of the GPS card functionality has not be implemented in the application.  However, the documented code along with the Symmetricom User Manual can be used to create/modify applications with additional functionality.
 
