@@ -1,6 +1,8 @@
 This directory contains the Linux software (driver and applications) to operate
 the Symmetricom GPS-PCI for the purposes of timestamping the SuperDARN pulses.
- 
+
+It has been tested on OpenSuSe 15.3
+
 See documentation/UserGuide.pdf for more details
 To Install:
 
