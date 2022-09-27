@@ -3,3 +3,8 @@
 *.ko
 *.mod
 *.mod.c
+*.aux
+*.toc
+*.log
+*.out
+*.backup
