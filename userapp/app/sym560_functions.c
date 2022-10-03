@@ -415,7 +415,7 @@ int satsig(int fd) {
  *             -1 on failure
  * Description: Read longitude, latitude and altitude from device and print it out
  */
-int fetch_position(fd) {
+int fetch_position(int fd) {
 	int ret, cnt, good_data;
 	/* buffers being used to fetch the data */
 	unsigned char quad_1[2][4];
@@ -529,7 +529,7 @@ int fetch_position(fd) {
  * Description: Read time from 100s of nanoseconds to thousands of years from device
  *		and print it out.
  */
-int fetch_time(fd) {
+int fetch_time(int fd) {
 	int ret;
 	unsigned char quad_1[4];
 	unsigned char quad_2[4];
@@ -659,7 +659,7 @@ int event_capture_menu(int fd) {
  * Returns    : nothing
  * Description: Gets user input to change the source for external events
  */
-void ev_source(fd) {
+void ev_source(int fd) {
 	int ret;
 	int num = 0;
 	unsigned char user_buff[4];

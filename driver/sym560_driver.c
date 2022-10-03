@@ -332,7 +332,7 @@ static ssize_t sym560_read(struct file *filp, char __user *buf, size_t count,
 	}
 	else
 	{
-		printk(KERN_INFO "Failed to read %x bytes of data\n",count);
+		printk(KERN_INFO "Failed to read %lx bytes of data\n",count);
 		return -1;
 	}	
 	
@@ -431,7 +431,7 @@ static ssize_t sym560_write(struct file *filp, const char __user *buf, size_t co
 	}
 	else
 	{
-		printk(KERN_ERR "Cannot write %x bytes of data\n",count);
+		printk(KERN_ERR "Cannot write %lx bytes of data\n",count);
 		return -1;
 	}	
 	/* DEBUGGING MESSAGE */
@@ -466,7 +466,7 @@ static long sym560_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	u32 data_32;
 	struct sym560_descriptor *dev; /* dev will contain device info */
 	/*pg 12 ch 3 of rubini for explanation of following command */
-	dev = container_of(filp->f_dentry->d_inode->i_cdev, struct sym560_descriptor, mycdev);
+	dev = container_of(filp->f_path.dentry->d_inode->i_cdev, struct sym560_descriptor, mycdev);
 
 	switch(cmd)
        	{
@@ -511,14 +511,14 @@ static long sym560_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		case SYM560_CHECK_INTCSR:
 			printk(KERN_DEBUG "\n\nChecking INTCSR Register\n");
 			data_32 = ioread32(dev->vlcraddr + 0x4c);
-			printk(KERN_DEBUG "\n INTCSR Register = %lu (0x%lx)\n",data_32,data_32);
+			printk(KERN_DEBUG "\n INTCSR Register = %u (0x%x)\n",data_32,data_32);
 			/* only worried about bottom two bytes */
 			if ((data_32 & 0x000000FF) != 0x00000048)
 			{
 				data_32 = 0x48;	
 				iowrite32(data_32, dev->vlcraddr + 0x4c);
 				data_32 = ioread32(dev->vlcraddr + 0x4c);
-				printk("Changed to %lu (0x%lx)\n",data_32,data_32);
+				printk("Changed to %u (0x%x)\n",data_32,data_32);
 			}
 			break;
 		default: /* command not allowed */
@@ -574,7 +574,6 @@ static unsigned char sym560_get_info(struct pci_dev *dev)
 }
 /*****************************************************************************/
 
-
 /*****************************************************************************/
 /* NAME: 	sym560_probe
  *
@@ -594,8 +593,7 @@ static int sym560_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	int ret;	/* used for error handling */
 	/*struct that holds the major and minor device numbers*/
 	dev_t devt = MKDEV(SYM560_MAJOR, SYM560_MINOR);
-	
-	/* struct used in memory management declared above */
+	static struct class * sym560_class; /* class_create returns this */
 	struct sym560_descriptor *sym560_p = &sym560;
 	
 	printk(KERN_INFO "\n**************************************************\n");
@@ -645,7 +643,9 @@ static int sym560_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	printk(KERN_DEBUG "IRQ NUM = %d\n", sym560_p->irq);
 	
 	/* assign major/minor device numbers */
-	/* This will cause it to show up in /proc/devices */
+	/* This doesn't cause it to show up in /proc/devices,
+	 * for that you need to use device_create() and class_create()
+	 * Or you need to mkdevice using cmd line binaries */
 	ret = alloc_chrdev_region(&devt, SYM560_MINOR, 1, "symgps"); 
 	
 	if (ret != 0)
@@ -655,6 +655,9 @@ static int sym560_probe(struct pci_dev *dev, const struct pci_device_id *id)
 		return ret;
 	}
 	
+	sym560_class = class_create(THIS_MODULE, "gps");
+	device_create(sym560_class, NULL, devt, NULL, "symgps");
+
 	SYM560_MAJOR = MAJOR(devt);
 
 	printk(KERN_DEBUG "Sym560 registered as:\n");
@@ -674,7 +677,7 @@ static int sym560_probe(struct pci_dev *dev, const struct pci_device_id *id)
 	}
 	
 	printk(KERN_DEBUG "\nValid ioctl command are as follows:\n");
-	printk(KERN_DEBUG "event capture : %x\n",SYM560_EVENT_CAPTURE); 
+	printk(KERN_DEBUG "event capture : %lx\n",SYM560_EVENT_CAPTURE);
 	printk(KERN_DEBUG "simpletest : %x\n",SYM560_SIMPLETEST); 
 	printk(KERN_DEBUG "Check Signal: %x\n", SYM560_CHECKSIGNAL);
 	printk(KERN_DEBUG "Check INTCSR: %x\n", SYM560_CHECK_INTCSR);

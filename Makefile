@@ -25,7 +25,7 @@ $(APPDIR)sym560_cmdline.o: $(APPDIR)sym560_cmdline.c $(APPDIR)sym560_functions.h
 	cd $(APPDIR); gcc -g -c sym560_cmdline.c
 
 sym560driver:
-	cd $(DRVDIR); $(MAKE) -C $(KERNELDIR) M="$(PWD)/driver"
+	cd $(DRVDIR); $(MAKE) -C $(KERNELDIR) M="$(PWD)/driver" modules
 	sed -e 's%PATHTOMODULE%$(PWD)/driver/sym560_driver.ko%g' $(PWD)/driver/sym560.org > $(PWD)/driver/sym560
 	chmod 0755 $(PWD)/driver/sym560
 	
@@ -53,4 +53,4 @@ uninstall:
 clean:
 	@echo "Cleaning"
 	cd $(APPDIR); rm -f *.o *~ sym560_cmdline event_cap
-	cd $(DRVDIR); rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions sym560
+	cd $(DRVDIR); rm -rf *.o *~ core .depend .*.cmd *.ko *.mod *.mod.c .tmp_versions sym560
